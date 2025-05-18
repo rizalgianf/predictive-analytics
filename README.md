@@ -1,4 +1,4 @@
-# Laporan Proyek Machine Learning: Prediksi Harga Emas
+# Laporan Proyek Machine Learning: Prediksi Harga Emas - Rizal Gian Febriantama
 
 ---
 
