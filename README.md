@@ -6,7 +6,7 @@
 
 ### Latar Belakang
 
-Harga emas adalah komoditas bernilai tinggi dan sering digunakan sebagai instrumen investasi. Seiring fluktuasi harga yang terjadi, prediksi harga emas menjadi penting bagi investor untuk mengambil keputusan yang lebih baik dalam merencanakan investasi.  
+Harga emas adalah komoditas bernilai tinggi dan sering digunakan sebagai instrumen investasi. Seiring fluktuasi harga yang terjadi, prediksi harga emas menjadi penting bagi investor untuk mengambil keputusan yang lebih baik dalam merencanakan investasi. Setyowibowo, S., As’ad, M., Sujito, & Farida, E. (2022).
 Pada proyek ini, digunakan model **ARIMA** dan **SARIMA** untuk memprediksi harga emas di masa depan berdasarkan data historis.
 
 ---
