@@ -1,142 +1,117 @@
-# Laporan Proyek Machine Learning: Prediksi Harga Emas - Rizal Gian Febriantama
+# Prediksi Harga Emas dengan Model Time Series (ARIMA & SARIMA)
 
----
+## Pendahuluan
 
-## 1. Domain Proyek
+Proyek ini bertujuan untuk mengembangkan dan mengevaluasi model *time series* untuk memprediksi harga emas harian. Harga emas merupakan aset penting dalam investasi dan pasar komoditas, namun fluktuasinya yang signifikan seringkali menyulitkan investor dalam pengambilan keputusan. Dengan memanfaatkan data historis, proyek ini berupaya membangun model prediktif yang dapat memberikan informasi berharga untuk perencanaan strategi investasi.
 
-### Latar Belakang
+## Domain Proyek
 
-Harga emas adalah komoditas bernilai tinggi dan sering digunakan sebagai instrumen investasi. Seiring fluktuasi harga yang terjadi, prediksi harga emas menjadi penting bagi investor untuk mengambil keputusan yang lebih baik dalam merencanakan investasi. Setyowibowo, S., As’ad, M., Sujito, & Farida, E. (2022).
-Pada proyek ini, digunakan model **ARIMA** dan **SARIMA** untuk memprediksi harga emas di masa depan berdasarkan data historis.
+Proyek ini berfokus pada **prediksi harga emas** dalam domain **pasar komoditas dan investasi**. Emas secara historis dianggap sebagai aset *safe haven* dan pilihan investasi yang populer. Namun, harganya sangat dinamis, dipengaruhi oleh berbagai faktor ekonomi makro, geopolitik, dan sentimen pasar. Ketidakpastian ini menyebabkan tantangan bagi investor. Proyek ini hadir untuk mengurangi ketidakpastian tersebut dengan menyediakan perkiraan harga yang lebih akurat, membantu investor membuat keputusan yang lebih cerdas, mengoptimalkan portofolio, dan mengurangi risiko finansial. Studi terkait menunjukkan bahwa model *time series* seperti ARIMA dan SARIMA efektif dalam memprediksi harga komoditas finansial dengan menangkap pola dan tren historis.
 
----
-
-## 2. Pernyataan Masalah
-
-- **Pernyataan Masalah 1:**  
-    Harga emas sangat fluktuatif dan dipengaruhi oleh berbagai faktor ekonomi global.
-
-- **Pernyataan Masalah 2:**  
-    Bagaimana cara memprediksi harga emas yang akurat berdasarkan data historis yang ada?
-
----
-
-## 3. Tujuan
-
-Membangun model prediksi harga emas yang dapat membantu investor dalam merencanakan investasi dengan lebih tepat berdasarkan proyeksi harga emas di masa depan.
-
----
-
-## 4. Solution Statement
-
-- **Solusi 1:**  
-    Menggunakan **ARIMA** untuk memprediksi harga emas dengan mempertimbangkan komponen non-musiman.
-
-- **Solusi 2:**  
-    Menggunakan **SARIMA** untuk memperhitungkan komponen musiman dalam harga emas, yang cenderung berfluktuasi mengikuti siklus tahunan.
-
----
-
-## 5. Business Understanding
+## Business Understanding
 
 ### Pernyataan Masalah
 
-- Prediksi harga emas penting untuk membantu investor mengambil keputusan dalam perencanaan finansial.
-- Memprediksi harga emas yang akurat memerlukan model yang mampu menangani data time series dengan komponen musiman.
+* Investor kesulitan memprediksi pergerakan harga emas di masa depan, yang menyebabkan pengambilan keputusan investasi yang suboptimal dan potensi kerugian.
+* Kurangnya model yang akurat dan dapat diandalkan untuk memprediksi harga emas membuat strategi investasi jangka pendek dan panjang sulit untuk dirumuskan secara efektif.
 
-### Goals
+### Tujuan Proyek
 
-- **Goal 1:** Membuat model yang dapat memprediksi harga emas untuk 3 tahun ke depan dengan akurasi yang baik.
-- **Goal 2:** Membandingkan kinerja ARIMA dan SARIMA dalam hal prediksi harga emas.
+* Menyediakan prediksi harga emas yang akurat untuk membantu investor membuat keputusan investasi yang lebih terinformasi dan meminimalkan risiko.
+* Mengembangkan model *time series* yang *robust* yang mampu menangkap tren dan pola musiman dalam data harga emas historis untuk mendukung perencanaan strategi investasi.
 
----
+### Solusi yang Diusulkan
 
-## 6. Data Understanding
+* Mengembangkan model regresi *time series* **ARIMA (Autoregressive Integrated Moving Average)** untuk memprediksi harga emas. Model ini akan dilatih pada data harga emas historis dan dievaluasi menggunakan metrik **MAE (Mean Absolute Error)** dan **RMSE (Root Mean Squared Error)**.
+* Melakukan *improvement* pada model *time series* dengan menggunakan **SARIMA (Seasonal Autoregressive Integrated Moving Average)**, yang merupakan ekstensi dari ARIMA yang mampu menangani pola musiman dalam data. Kinerja model SARIMA akan dibandingkan dengan ARIMA menggunakan metrik MAE dan RMSE untuk menentukan model terbaik.
 
-### Informasi Dataset
+## Data Understanding
 
-Dataset yang digunakan terdiri dari beberapa kolom:
+Data yang digunakan dalam proyek ini adalah **harga emas harian dalam IDR (Rupiah Indonesia)**, yang diperoleh melalui *web scraping* dari situs web Logam Mulia Indonesia. Dataset ini mencakup informasi harga emas historis dari 14 Maret 2019 hingga 21 Mei 2025.
 
-| Kolom         | Deskripsi                                 |
-|---------------|-------------------------------------------|
-| `sell`        | Harga jual emas                           |
-| `buy`         | Harga beli emas                           |
-| `installment` | Harga emas untuk pembelian secara cicilan |
-| `tgl`         | Tanggal pencatatan harga emas             |
+### Variabel-variabel pada dataset:
 
-**Variabel Utama:**  
-Menggunakan harga jual emas (`sell`) untuk prediksi harga emas ke depan.
+* **Tanggal:** Merepresentasikan tanggal pencatatan harga emas. Ini akan diubah menjadi format datetime dan diatur sebagai indeks deret waktu.
+* **Harga Emas (IDR):** Merepresentasikan harga emas per gram dalam mata uang Rupiah Indonesia pada tanggal tertentu. Ini adalah variabel target untuk diprediksi.
 
----
+### Eksplorasi Data (EDA)
 
-## 7. Data Preparation
+Tahapan EDA meliputi:
+* **Pemuatan dan Inspeksi Data:** Memeriksa struktur awal data, tipe data, dan keberadaan nilai yang hilang.
+* **Konversi Tipe Data dan Pengaturan Indeks:** Mengubah kolom 'Tanggal' menjadi format datetime dan menjadikannya indeks untuk analisis deret waktu.
+* **Visualisasi Deret Waktu:** Plot garis untuk memvisualisasikan tren historis harga emas, membantu mengidentifikasi pola atau anomali.
+* **Analisis Autokorelasi (ACF dan PACF):** Plot ACF dan PACF digunakan untuk mengidentifikasi orde parameter yang sesuai untuk model ARIMA dan SARIMA, baik untuk komponen non-musiman maupun musiman.
 
-**Proses Data Preparation:**
+## Data Preparation
 
-1. **Pembersihan Data:**  
-     - Menghapus data duplikat  
-     - Memeriksa dan mengonversi kolom `tgl` menjadi tipe data datetime
+Langkah-langkah persiapan data yang dilakukan:
 
-2. **Pemilihan Variabel:**  
-     - Menggunakan harga jual (`sell`) sebagai variabel target
+1.  **Pengambilan Data Harga Emas:** Fokus pada kolom harga emas sebagai deret waktu utama untuk pemodelan.
+2.  **Penanganan *Missing Values* dan Duplikat:** Memastikan kontinuitas deret waktu dengan menangani nilai-nilai yang hilang atau duplikat pada indeks tanggal (jika ada, dilakukan interpolasi atau *resampling*).
+3.  **Memastikan Indeks adalah `DatetimeIndex`:** Mengonversi kolom tanggal menjadi indeks bertipe datetime agar kompatibel dengan fungsi-fungsi *time series*.
 
-3. **Transformasi Data:**  
-     - Menggunakan log-transformasi pada harga emas untuk mengatasi heteroskedastisitas
 
----
+## Modeling
 
-## 8. Modeling
+Proyek ini menggunakan model **ARIMA** dan **SARIMA** untuk peramalan harga emas.
 
-### Model yang Digunakan
+### ARIMA (Autoregressive Integrated Moving Average)
 
-- **ARIMA (AutoRegressive Integrated Moving Average):**  
-    Untuk menangani komponen non-musiman dalam data.
-- **SARIMA (Seasonal ARIMA):**  
-    Untuk memperhitungkan komponen musiman dalam harga emas (pola musiman tahunan).
+Model ARIMA memiliki tiga komponen: **AR** (Autoregressive), **I** (Integrated), dan **MA** (Moving Average), masing-masing diwakili oleh orde `p`, `d`, dan `q`. ARIMA cocok untuk deret waktu dengan tren atau pola autokorelasi, namun tidak secara langsung menangani musiman. Pemilihan parameternya didasarkan pada analisis ACF/PACF.
 
-### Parameter Model
+**Parameter ARIMA yang Digunakan:**
+Model ARIMA yang digunakan memiliki orde (5, 1, 0). Ini berarti model mempertimbangkan 5 *lag* autokorelatif, 1 tingkat diferensiasi untuk mencapai stasionaritas, dan 0 *lag* *moving average*.
 
-- **ARIMA(5, 1, 0):**  
-    Model ARIMA dengan 5 lags AR untuk menangani tren dalam data.
-- **SARIMA(1, 1, 1, 12):**  
-    Model SARIMA dengan 1 lag musiman AR, 1 differencing musiman, dan 1 lag musiman MA (periode musiman 12 bulan).
+### SARIMA (Seasonal Autoregressive Integrated Moving Average)
 
-### Proses Pemodelan
+SARIMA adalah pengembangan dari ARIMA yang menambahkan komponen musiman. Selain orde non-musiman (p, d, q), SARIMA memiliki orde musiman (P, D, Q, S), di mana S adalah panjang periode musiman. SARIMA efektif untuk deret waktu dengan pola musiman yang jelas, meskipun lebih kompleks dalam implementasi dan pemilihan parameternya.
 
-- Membangun kedua model (ARIMA dan SARIMA) untuk memprediksi harga emas berdasarkan data historis.
-- Hyperparameter tuning berdasarkan ACF dan PACF plots.
+**Parameter SARIMA yang Digunakan:**
+Model SARIMA yang digunakan memiliki orde non-musiman (5, 1, 0) dan orde musiman (1, 1, [1], 12). Ini mengindikasikan 5 *lag* autokorelatif non-musiman, 1 tingkat diferensiasi non-musiman, dan 0 *lag* *moving average* non-musiman. Untuk komponen musiman, digunakan 1 *lag* autokorelatif musiman, 1 tingkat diferensiasi musiman, dan 1 *lag* *moving average* musiman dengan periode musiman 12 (misalnya, bulanan).
 
----
+### Pemilihan Model Terbaik dan Proses Improvement
 
-## 9. Evaluation
+**SARIMA** dipilih sebagai model terbaik dibandingkan ARIMA karena kemampuannya dalam memodelkan pola musiman, yang mungkin ada dalam data harga emas meskipun tidak terlalu dominan.
 
-### Metrik Evaluasi
+**Proses Improvement:**
+Proses optimasi model SARIMA melibatkan:
+1.  **Pemilihan Model SARIMA:** Memutuskan penggunaan SARIMA untuk mengatasi potensi pola musiman.
+2.  **Penentuan Orde Parameter:** Menentukan orde (p, d, q) dan musiman (P, D, Q, S) melalui analisis plot ACF dan PACF dari deret waktu (baik asli maupun setelah diferensiasi). Pengujian stasionaritas (misalnya dengan uji Augmented Dickey-Fuller) juga dilakukan untuk menentukan jumlah diferensiasi yang diperlukan. Iterasi dilakukan dengan mencoba beberapa kombinasi parameter dan memilih yang menghasilkan nilai Akaike Information Criterion (AIC) atau Bayesian Information Criterion (BIC) terendah, yang menunjukkan keseimbangan terbaik antara *goodness of fit* dan kompleksitas model.
 
-- **MAE (Mean Absolute Error):**  
-    Mengukur rata-rata perbedaan absolut antara harga yang diprediksi dan harga aktual.
-- **RMSE (Root Mean Squared Error):**  
-    Mengukur kesalahan prediksi dengan penalti lebih besar pada kesalahan besar.
+## Evaluation
 
-### Hasil Evaluasi
+Metrik evaluasi yang digunakan adalah **MAE (Mean Absolute Error)** dan **RMSE (Root Mean Squared Error)**, yang relevan untuk kasus prediksi nilai numerik.
 
-| Model  | MAE (IDR) | RMSE (IDR) |
-|--------|-----------|------------|
-| ARIMA  | 5,657.22  | 16,765.55  |
-| SARIMA | 7,321.33  | 21,208.04  |
+### Penjelasan Metrik:
 
-### Visualisasi Hasil
+1.  **Mean Absolute Error (MAE):** Mengukur rata-rata selisih absolut antara nilai prediksi dan nilai aktual. MAE memberikan bobot yang sama pada semua kesalahan. Formula: $MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$.
 
-Grafik perbandingan antara harga emas historis dan prediksi harga emas untuk periode 3 tahun ke depan menunjukkan bahwa model dapat memperkirakan harga emas meskipun terdapat kesalahan prediksi.
+2.  **Root Mean Squared Error (RMSE):** Mengukur akar kuadrat dari rata-rata kuadrat kesalahan. RMSE memberikan bobot lebih besar pada kesalahan yang besar. Formula: $RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}$.
 
-### Residual Analysis
+### Hasil Proyek Berdasarkan Metrik Evaluasi
 
-Analisis residual menunjukkan autokorelasi pada beberapa residual model. Namun, model SARIMA yang memanfaatkan komponen musiman menunjukkan hasil yang lebih baik dibandingkan ARIMA dalam menangkap pola musiman pada harga emas.
+Berdasarkan hasil evaluasi model:
 
----
+**Hasil Model ARIMA:**
+* **Log Likelihood:** -20711.485
+* **AIC (Akaike Information Criterion):** 41434.970
+* **BIC (Bayesian Information Criterion):** 41469.308
+* **MAE:** 5676.94
+* **RMSE:** 16831.91
 
-## 10. Kesimpulan
+**Hasil Model SARIMA:**
+* **Log Likelihood:** -20998.935
+* **AIC (Akaike Information Criterion):** 42013.870
+* **BIC (Bayesian Information Criterion):** 42059.613
+* **MAE:** 7387.20
+* **RMSE:** 20611.11
 
-Proyek ini berhasil mengembangkan model **SARIMA** dan **ARIMA** untuk memprediksi harga emas.  
-Berdasarkan evaluasi, model SARIMA dengan komponen musiman memberikan hasil yang lebih baik dibandingkan ARIMA dalam menangkap pola musiman pada harga emas.
+**Interpretasi Hasil:**
 
----
+Berdasarkan perbandingan metrik, model **ARIMA** (MAE 5676.94, RMSE 16831.91) menunjukkan kinerja yang lebih baik dalam hal kesalahan prediksi dibandingkan model **SARIMA** (MAE 7387.20, RMSE 20611.11) pada data yang dievaluasi. Model ARIMA juga memiliki nilai AIC dan BIC yang lebih rendah, yang mengindikasikan *goodness of fit* yang lebih baik dengan kompleksitas model yang mungkin lebih sederhana untuk data ini.
+
+Nilai RMSE yang lebih tinggi dari MAE untuk kedua model menunjukkan adanya beberapa kesalahan prediksi yang cukup besar yang memiliki dampak signifikan pada total kesalahan. Meskipun SARIMA dirancang untuk menangani pola musiman, pada data harga emas ini, komponen musiman dengan periode 12 mungkin tidak terlalu dominan atau belum sepenuhnya dioptimalkan, sehingga model ARIMA dasar memberikan akurasi yang lebih baik.
+
+Dibandingkan dengan skala harga emas (yang bisa ratusan ribu hingga jutaan IDR per gram), nilai MAE dan RMSE ini memberikan indikasi tingkat akurasi model. Semakin rendah nilai MAE dan RMSE, semakin baik kinerja model dalam memprediksi harga emas. Hasil ini akan menjadi *baseline* kinerja model untuk prediksi harga emas. Untuk interpretasi yang lebih mendalam, perlu perbandingan dengan *benchmark* sederhana dan ekspektasi toleransi kesalahan dari perspektif bisnis.
+
+Secara keseluruhan, kedua model telah berhasil dilatih dan dievaluasi. Model ARIMA menunjukkan kinerja yang lebih superior pada dataset ini, yang menjadi dasar kuat untuk prediksi harga emas.
