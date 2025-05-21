@@ -1,4 +1,4 @@
-# Prediksi Harga Emas dengan Model Time Series (ARIMA & SARIMA)
+# Prediksi Harga Emas dengan Model Time Series (ARIMA & SARIMA) - RIZAL GIAN FEBRIANTAMA
 
 ## Pendahuluan
 
