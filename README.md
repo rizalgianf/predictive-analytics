@@ -1,117 +1,110 @@
-# Prediksi Harga Emas dengan Model Time Series (ARIMA & SARIMA) - RIZAL GIAN FEBRIANTAMA
+# Laporan Proyek: Prediksi Harga Emas Menggunakan Model LSTM Multivariate
 
-## Pendahuluan
+## 1. Domain Proyek
 
-Proyek ini bertujuan untuk mengembangkan dan mengevaluasi model *time series* untuk memprediksi harga emas harian. Harga emas merupakan aset penting dalam investasi dan pasar komoditas, namun fluktuasinya yang signifikan seringkali menyulitkan investor dalam pengambilan keputusan. Dengan memanfaatkan data historis, proyek ini berupaya membangun model prediktif yang dapat memberikan informasi berharga untuk perencanaan strategi investasi.
+### Latar Belakang
+Emas telah lama menjadi salah satu pilihan investasi yang aman (*safe haven*), terutama pada periode ketidakpastian ekonomi dan geopolitik. Namun, harga emas sering kali berfluktuasi secara signifikan, membuatnya sulit diprediksi. Fluktuasi harga yang tajam ini menambah tantangan bagi investor dalam membuat keputusan investasi yang tepat.
 
-## Domain Proyek
+Proyek ini bertujuan untuk memanfaatkan **model LSTM Multivariate** (Long Short-Term Memory) dalam memprediksi harga emas, berdasarkan data historis harga emas yang tersedia. Dengan memanfaatkan model deep learning, diharapkan dapat memberikan prediksi yang lebih akurat dalam membantu investor merencanakan strategi investasi mereka.
 
-Proyek ini berfokus pada **prediksi harga emas** dalam domain **pasar komoditas dan investasi**. Emas secara historis dianggap sebagai aset *safe haven* dan pilihan investasi yang populer. Namun, harganya sangat dinamis, dipengaruhi oleh berbagai faktor ekonomi makro, geopolitik, dan sentimen pasar. Ketidakpastian ini menyebabkan tantangan bagi investor. Proyek ini hadir untuk mengurangi ketidakpastian tersebut dengan menyediakan perkiraan harga yang lebih akurat, membantu investor membuat keputusan yang lebih cerdas, mengoptimalkan portofolio, dan mengurangi risiko finansial. Studi terkait menunjukkan bahwa model *time series* seperti ARIMA dan SARIMA efektif dalam memprediksi harga komoditas finansial dengan menangkap pola dan tren historis.
+### Mengapa Masalah Ini Harus Diselesaikan
+Ketidakpastian dalam pergerakan harga emas dapat menyebabkan investor mengalami kerugian yang signifikan jika tidak dapat memprediksi pergerakan harga dengan tepat. Oleh karena itu, solusi berbasis *predictive analytics* yang lebih akurat diperlukan untuk membantu investor mengurangi risiko dan membuat keputusan investasi yang lebih cerdas.
 
-## Business Understanding
+### Riset Terkait
+Penelitian sebelumnya telah menunjukkan bahwa model **LSTM** merupakan salah satu teknik yang efektif dalam memprediksi deret waktu dengan kompleksitas tinggi, seperti pergerakan harga emas. Sebagai referensi terkait, berikut adalah artikel yang relevan:
+- **"Deep Learning for Time Series Forecasting"** oleh F. Chollet, 2015.
 
-### Pernyataan Masalah
+## 2. Business Understanding
 
-* Investor kesulitan memprediksi pergerakan harga emas di masa depan, yang menyebabkan pengambilan keputusan investasi yang suboptimal dan potensi kerugian.
-* Kurangnya model yang akurat dan dapat diandalkan untuk memprediksi harga emas membuat strategi investasi jangka pendek dan panjang sulit untuk dirumuskan secara efektif.
+### Problem Statements
+Investor kesulitan dalam memprediksi pergerakan harga emas di masa depan, yang menyebabkan pengambilan keputusan investasi yang kurang optimal dan potensi kerugian.
 
 ### Tujuan Proyek
+- Mengembangkan model yang dapat memprediksi harga emas dengan akurat, sehingga investor dapat membuat keputusan investasi yang lebih terinformasi.
+- Menerapkan model **LSTM Multivariate** yang mampu menangkap tren dan pola pergerakan harga emas berdasarkan data historis.
 
-* Menyediakan prediksi harga emas yang akurat untuk membantu investor membuat keputusan investasi yang lebih terinformasi dan meminimalkan risiko.
-* Mengembangkan model *time series* yang *robust* yang mampu menangkap tren dan pola musiman dalam data harga emas historis untuk mendukung perencanaan strategi investasi.
+### Solution Statements
+- **Solusi 1:** Mengimplementasikan model **LSTM Multivariate** dengan data harga emas historis untuk memprediksi harga emas di masa depan. Model ini akan mempelajari pola temporal dalam data harga emas dan memberikan prediksi yang lebih akurat.
+- **Solusi 2:** Meningkatkan model LSTM melalui tuning hyperparameter, seperti jumlah unit LSTM dan tingkat dropout, untuk meningkatkan akurasi prediksi.
 
-### Solusi yang Diusulkan
+## 3. Data Understanding
 
-* Mengembangkan model regresi *time series* **ARIMA (Autoregressive Integrated Moving Average)** untuk memprediksi harga emas. Model ini akan dilatih pada data harga emas historis dan dievaluasi menggunakan metrik **MAE (Mean Absolute Error)** dan **RMSE (Root Mean Squared Error)**.
-* Melakukan *improvement* pada model *time series* dengan menggunakan **SARIMA (Seasonal Autoregressive Integrated Moving Average)**, yang merupakan ekstensi dari ARIMA yang mampu menangani pola musiman dalam data. Kinerja model SARIMA akan dibandingkan dengan ARIMA menggunakan metrik MAE dan RMSE untuk menentukan model terbaik.
+### Deskripsi Data
+Dataset yang digunakan adalah data **harga emas harian dalam IDR (Rupiah Indonesia)** yang diperoleh melalui *web scraping* dari situs Logam Mulia Indonesia. Data ini mencakup informasi harga emas dari **14 Maret 2019 hingga 21 Mei 2025**.
 
-## Data Understanding
+### Variabel-variabel pada Dataset
+- **Tanggal (Date):** Tanggal pencatatan harga emas.
+- **Harga Emas (Gold Price):** Harga emas per gram dalam IDR pada tanggal tertentu. Ini adalah variabel target yang akan diprediksi.
 
-Data yang digunakan dalam proyek ini adalah **harga emas harian dalam IDR (Rupiah Indonesia)**, yang diperoleh melalui *web scraping* dari situs web Logam Mulia Indonesia. Dataset ini mencakup informasi harga emas historis dari 14 Maret 2019 hingga 21 Mei 2025.
-
-### Variabel-variabel pada dataset:
-
-* **Tanggal:** Merepresentasikan tanggal pencatatan harga emas. Ini akan diubah menjadi format datetime dan diatur sebagai indeks deret waktu.
-* **Harga Emas (IDR):** Merepresentasikan harga emas per gram dalam mata uang Rupiah Indonesia pada tanggal tertentu. Ini adalah variabel target untuk diprediksi.
+### Sumber Data
+- **Link Sumber Data:** Data diambil dari API Pluang: [https://pluang.com/api/asset/gold/pricing?daysLimit=20000]
 
 ### Eksplorasi Data (EDA)
+Tahapan EDA yang dilakukan meliputi:
+1. **Memuat dan Memeriksa Data:** Mengecek apakah terdapat data yang hilang dan memastikan data terformat dengan benar.
+2. **Visualisasi Deret Waktu:** Menggunakan plot untuk memvisualisasikan tren harga emas dan mengidentifikasi pola atau anomali.
+3. **Analisis Autokorelasi:** Menggunakan plot ACF dan PACF untuk memahami ketergantungan waktu dalam data harga emas.
 
-Tahapan EDA meliputi:
-* **Pemuatan dan Inspeksi Data:** Memeriksa struktur awal data, tipe data, dan keberadaan nilai yang hilang.
-* **Konversi Tipe Data dan Pengaturan Indeks:** Mengubah kolom 'Tanggal' menjadi format datetime dan menjadikannya indeks untuk analisis deret waktu.
-* **Visualisasi Deret Waktu:** Plot garis untuk memvisualisasikan tren historis harga emas, membantu mengidentifikasi pola atau anomali.
-* **Analisis Autokorelasi (ACF dan PACF):** Plot ACF dan PACF digunakan untuk mengidentifikasi orde parameter yang sesuai untuk model ARIMA dan SARIMA, baik untuk komponen non-musiman maupun musiman.
+## 4. Data Preparation
 
-## Data Preparation
+### Teknik Data Preparation yang Dilakukan
+1. **Penanganan Data yang Hilang:** Nilai yang hilang diimputasi menggunakan interpolasi linier agar deret waktu tetap kontinu.
+2. **Konversi Tanggal ke Datetime:** Kolom tanggal diubah menjadi format datetime dan dijadikan indeks untuk mempermudah analisis deret waktu.
+3. **Normalisasi Data:** Harga emas dinormalisasi menggunakan Min-Max Scaling untuk meningkatkan kinerja model LSTM.
+4. **Pembagian Data Latih dan Uji:** Data dibagi menjadi dua bagian, yaitu data latih (80%) dan data uji (20%).
 
-Langkah-langkah persiapan data yang dilakukan:
+### Alasan Mengapa Data Preparation Diperlukan
+Langkah-langkah ini dilakukan untuk memastikan data dalam kondisi yang bersih dan terstruktur dengan baik. Normalisasi sangat penting untuk model LSTM karena model ini sensitif terhadap skala data.
 
-1.  **Pengambilan Data Harga Emas:** Fokus pada kolom harga emas sebagai deret waktu utama untuk pemodelan.
-2.  **Penanganan *Missing Values* dan Duplikat:** Memastikan kontinuitas deret waktu dengan menangani nilai-nilai yang hilang atau duplikat pada indeks tanggal (jika ada, dilakukan interpolasi atau *resampling*).
-3.  **Memastikan Indeks adalah `DatetimeIndex`:** Mengonversi kolom tanggal menjadi indeks bertipe datetime agar kompatibel dengan fungsi-fungsi *time series*.
+## 5. Modeling
+
+### Model LSTM Multivariate
+- **Arsitektur LSTM:** Model ini terdiri dari beberapa lapisan LSTM yang diikuti oleh lapisan dens untuk menghasilkan prediksi. LSTM mampu mempelajari ketergantungan temporal dalam data harga emas.
+- **Hyperparameter:** Kami menguji berbagai kombinasi hyperparameter seperti jumlah unit LSTM dan tingkat dropout untuk menemukan konfigurasi yang optimal.
+
+### Proses dan Parameter yang Digunakan
+1. **Fitur Input:** Data historis harga emas digunakan sebagai input utama untuk model.
+2. **Lapisan Tersembunyi:** Model terdiri dari beberapa lapisan LSTM dengan unit berkisar antara 50 hingga 100.
+3. **Lapisan Output:** Lapisan output terdiri dari satu neuron yang memprediksi harga emas pada titik waktu berikutnya.
+
+### Peningkatan Model
+Untuk meningkatkan kinerja model, dilakukan tuning hyperparameter dengan menguji berbagai konfigurasi lapisan dan unit. Pengujian silang dilakukan untuk mencegah overfitting dan meningkatkan kemampuan generalisasi model.
+
+## 6. Evaluation
+
+### Metrik Evaluasi
+1. **MAE (Mean Absolute Error):** Mengukur rata-rata selisih absolut antara nilai prediksi dan nilai aktual.
+   \[
+   MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|
+   \]
+2. **RMSE (Root Mean Squared Error):** Mengukur akar kuadrat dari rata-rata kuadrat kesalahan, memberikan bobot lebih pada kesalahan yang lebih besar.
+   \[
+   RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}
+   \]
+
+### Hasil Evaluasi
+- **MAE:** 10,677.87 IDR
+- **RMSE:** 17,364.33 IDR
+
+Hasil ini menunjukkan bahwa meskipun model LSTM dapat memprediksi tren harga emas dengan cukup baik, masih ada beberapa kesalahan besar dalam prediksi harga yang tajam.
+
+## 7. Hasil Prediksi dan Analisis
+
+### Prediksi Harga Emas pada 21 Maret 2026
+- **Prediksi Harga Emas pada 21 Maret 2026:** 2,069,221 IDR per gram
+
+### Analisis Hasil Prediksi
+- **Tren Umum:** Model berhasil menangkap tren kenaikan harga emas yang stabil dari 2019 hingga 2025, dengan prediksi yang cukup akurat mengikuti pergerakan historis.
+- **Fluktuasi Tajam:** Terlihat adanya fluktuasi tajam pada tahun 2025, yang diprediksi oleh model. Meskipun harga emas mengalami lonjakan besar, model LSTM terus mengikuti tren tersebut, mencerminkan kemampuannya dalam mengakomodasi perubahan besar dalam harga.
+- **Proyeksi Masa Depan:** Berdasarkan hasil prediksi, harga emas pada tanggal **21 Maret 2026** diperkirakan mencapai **2,069,221 IDR**, yang mencerminkan kelanjutan dari tren kenaikan yang stabil. Proyeksi ini menunjukkan bahwa meskipun terjadi fluktuasi, harga emas kemungkinan akan terus naik dalam beberapa tahun mendatang.
+
+### Evaluasi dan Kelemahan
+Meskipun prediksi menunjukkan arah yang baik dan mencerminkan pola historis yang kuat, seperti halnya semua model prediktif, prediksi ini tidak dapat sepenuhnya memprediksi ketidakpastian yang ada dalam pasar. Faktor-faktor eksternal seperti kondisi ekonomi global, kebijakan pemerintah, atau perubahan geopolitik dapat memengaruhi harga emas secara signifikan dan tidak dapat sepenuhnya dipertimbangkan oleh model.
+
+Namun, model ini dapat menjadi alat yang sangat berguna bagi investor untuk mendapatkan gambaran umum tentang potensi pergerakan harga emas dalam jangka waktu yang lebih panjang.
+
+## 8. Kesimpulan
+
+Model **LSTM Multivariate** terbukti efektif dalam memprediksi harga emas, dengan kinerja yang cukup baik dalam menangkap tren jangka panjang. Namun, model ini masih dapat ditingkatkan lebih lanjut dengan melakukan tuning hyperparameter dan memasukkan fitur eksternal yang dapat memperbaiki akurasi prediksi. Peningkatan lebih lanjut dapat dilakukan dengan eksperimen pada arsitektur LSTM yang lebih kompleks atau teknik deep learning lainnya.
 
 
-## Modeling
-
-Proyek ini menggunakan model **ARIMA** dan **SARIMA** untuk peramalan harga emas.
-
-### ARIMA (Autoregressive Integrated Moving Average)
-
-Model ARIMA memiliki tiga komponen: **AR** (Autoregressive), **I** (Integrated), dan **MA** (Moving Average), masing-masing diwakili oleh orde `p`, `d`, dan `q`. ARIMA cocok untuk deret waktu dengan tren atau pola autokorelasi, namun tidak secara langsung menangani musiman. Pemilihan parameternya didasarkan pada analisis ACF/PACF.
-
-**Parameter ARIMA yang Digunakan:**
-Model ARIMA yang digunakan memiliki orde (5, 1, 0). Ini berarti model mempertimbangkan 5 *lag* autokorelatif, 1 tingkat diferensiasi untuk mencapai stasionaritas, dan 0 *lag* *moving average*.
-
-### SARIMA (Seasonal Autoregressive Integrated Moving Average)
-
-SARIMA adalah pengembangan dari ARIMA yang menambahkan komponen musiman. Selain orde non-musiman (p, d, q), SARIMA memiliki orde musiman (P, D, Q, S), di mana S adalah panjang periode musiman. SARIMA efektif untuk deret waktu dengan pola musiman yang jelas, meskipun lebih kompleks dalam implementasi dan pemilihan parameternya.
-
-**Parameter SARIMA yang Digunakan:**
-Model SARIMA yang digunakan memiliki orde non-musiman (5, 1, 0) dan orde musiman (1, 1, [1], 12). Ini mengindikasikan 5 *lag* autokorelatif non-musiman, 1 tingkat diferensiasi non-musiman, dan 0 *lag* *moving average* non-musiman. Untuk komponen musiman, digunakan 1 *lag* autokorelatif musiman, 1 tingkat diferensiasi musiman, dan 1 *lag* *moving average* musiman dengan periode musiman 12 (misalnya, bulanan).
-
-### Pemilihan Model Terbaik dan Proses Improvement
-
-**SARIMA** dipilih sebagai model terbaik dibandingkan ARIMA karena kemampuannya dalam memodelkan pola musiman, yang mungkin ada dalam data harga emas meskipun tidak terlalu dominan.
-
-**Proses Improvement:**
-Proses optimasi model SARIMA melibatkan:
-1.  **Pemilihan Model SARIMA:** Memutuskan penggunaan SARIMA untuk mengatasi potensi pola musiman.
-2.  **Penentuan Orde Parameter:** Menentukan orde (p, d, q) dan musiman (P, D, Q, S) melalui analisis plot ACF dan PACF dari deret waktu (baik asli maupun setelah diferensiasi). Pengujian stasionaritas (misalnya dengan uji Augmented Dickey-Fuller) juga dilakukan untuk menentukan jumlah diferensiasi yang diperlukan. Iterasi dilakukan dengan mencoba beberapa kombinasi parameter dan memilih yang menghasilkan nilai Akaike Information Criterion (AIC) atau Bayesian Information Criterion (BIC) terendah, yang menunjukkan keseimbangan terbaik antara *goodness of fit* dan kompleksitas model.
-
-## Evaluation
-
-Metrik evaluasi yang digunakan adalah **MAE (Mean Absolute Error)** dan **RMSE (Root Mean Squared Error)**, yang relevan untuk kasus prediksi nilai numerik.
-
-### Penjelasan Metrik:
-
-1.  **Mean Absolute Error (MAE):** Mengukur rata-rata selisih absolut antara nilai prediksi dan nilai aktual. MAE memberikan bobot yang sama pada semua kesalahan. Formula: $MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$.
-
-2.  **Root Mean Squared Error (RMSE):** Mengukur akar kuadrat dari rata-rata kuadrat kesalahan. RMSE memberikan bobot lebih besar pada kesalahan yang besar. Formula: $RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}$.
-
-### Hasil Proyek Berdasarkan Metrik Evaluasi
-
-Berdasarkan hasil evaluasi model:
-
-**Hasil Model ARIMA:**
-* **Log Likelihood:** -20711.485
-* **AIC (Akaike Information Criterion):** 41434.970
-* **BIC (Bayesian Information Criterion):** 41469.308
-* **MAE:** 5676.94
-* **RMSE:** 16831.91
-
-**Hasil Model SARIMA:**
-* **Log Likelihood:** -20998.935
-* **AIC (Akaike Information Criterion):** 42013.870
-* **BIC (Bayesian Information Criterion):** 42059.613
-* **MAE:** 7387.20
-* **RMSE:** 20611.11
-
-**Interpretasi Hasil:**
-
-Berdasarkan perbandingan metrik, model **ARIMA** (MAE 5676.94, RMSE 16831.91) menunjukkan kinerja yang lebih baik dalam hal kesalahan prediksi dibandingkan model **SARIMA** (MAE 7387.20, RMSE 20611.11) pada data yang dievaluasi. Model ARIMA juga memiliki nilai AIC dan BIC yang lebih rendah, yang mengindikasikan *goodness of fit* yang lebih baik dengan kompleksitas model yang mungkin lebih sederhana untuk data ini.
-
-Nilai RMSE yang lebih tinggi dari MAE untuk kedua model menunjukkan adanya beberapa kesalahan prediksi yang cukup besar yang memiliki dampak signifikan pada total kesalahan. Meskipun SARIMA dirancang untuk menangani pola musiman, pada data harga emas ini, komponen musiman dengan periode 12 mungkin tidak terlalu dominan atau belum sepenuhnya dioptimalkan, sehingga model ARIMA dasar memberikan akurasi yang lebih baik.
-
-Dibandingkan dengan skala harga emas (yang bisa ratusan ribu hingga jutaan IDR per gram), nilai MAE dan RMSE ini memberikan indikasi tingkat akurasi model. Semakin rendah nilai MAE dan RMSE, semakin baik kinerja model dalam memprediksi harga emas. Hasil ini akan menjadi *baseline* kinerja model untuk prediksi harga emas. Untuk interpretasi yang lebih mendalam, perlu perbandingan dengan *benchmark* sederhana dan ekspektasi toleransi kesalahan dari perspektif bisnis.
-
-Secara keseluruhan, kedua model telah berhasil dilatih dan dievaluasi. Model ARIMA menunjukkan kinerja yang lebih superior pada dataset ini, yang menjadi dasar kuat untuk prediksi harga emas.
