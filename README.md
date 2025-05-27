@@ -21,20 +21,33 @@ Investor kesulitan dalam memprediksi pergerakan harga emas di masa depan, yang m
 
 ### Tujuan Proyek
 - Mengembangkan model yang dapat memprediksi harga emas dengan akurat, sehingga investor dapat membuat keputusan investasi yang lebih terinformasi.
-- Menerapkan model **LSTM Multivariate** yang mampu menangkap tren dan pola pergerakan harga emas berdasarkan data historis.
+
 
 ### Solution Statements
 - **Solusi 1:** Mengimplementasikan model **LSTM Multivariate** dengan data harga emas historis untuk memprediksi harga emas di masa depan. Model ini akan mempelajari pola temporal dalam data harga emas dan memberikan prediksi yang lebih akurat.
-- **Solusi 2:** Meningkatkan model LSTM melalui tuning hyperparameter, seperti jumlah unit LSTM dan tingkat dropout, untuk meningkatkan akurasi prediksi.
+
 
 ## 3. Data Understanding
 
 ### Deskripsi Data
-Dataset yang digunakan adalah data **harga emas harian dalam IDR (Rupiah Indonesia)** yang diperoleh melalui *web scraping* dari situs Logam Mulia Indonesia. Data ini mencakup informasi harga emas dari **14 Maret 2019 hingga 21 Mei 2025**.
+Dataset ini terdiri dari **2001 baris** dan **4 kolom**, dengan rincian kolom sebagai berikut:
 
-### Variabel-variabel pada Dataset
-- **Tanggal (Date):** Tanggal pencatatan harga emas.
-- **Harga Emas (Gold Price):** Harga emas per gram dalam IDR pada tanggal tertentu. Ini adalah variabel target yang akan diprediksi.
+1. **sell**: Harga jual emas.
+2. **buy**: Harga beli emas.
+3. **installment**: Nilai cicilan emas.
+4. **tgl**: Tanggal transaksi (format string).
+
+### Kondisi Data
+- **Jumlah baris**: 2001
+- **Jumlah kolom**: 4
+- **Data duplikat**: Terdapat **4 data duplikat** dalam dataset ini.
+- **Missing values**: Tidak ada data yang hilang pada setiap kolom.
+
+### Deskripsi Fitur
+- **sell**: Harga jual emas yang tercatat pada tanggal tertentu.
+- **buy**: Harga beli emas yang tercatat pada tanggal tertentu.
+- **installment**: Nilai cicilan yang tercatat untuk setiap transaksi.
+- **tgl**: Tanggal transaksi yang tercatat.
 
 ### Sumber Data
 - **Link Sumber Data:** Data diambil dari API Pluang: [https://pluang.com/api/asset/gold/pricing?daysLimit=20000]
@@ -46,29 +59,133 @@ Tahapan EDA yang dilakukan meliputi:
 3. **Analisis Autokorelasi:** Menggunakan plot ACF dan PACF untuk memahami ketergantungan waktu dalam data harga emas.
 
 ## 4. Data Preparation
+Berikut adalah **revisi bagian Data Preparation** dalam format markdown yang rapi dan **sesuai urutan kode di notebook**. Silakan copy ke laporanmu:
+
+---
 
 ### Teknik Data Preparation yang Dilakukan
-1. **Penanganan Data yang Hilang:** Nilai yang hilang diimputasi menggunakan interpolasi linier agar deret waktu tetap kontinu.
-2. **Konversi Tanggal ke Datetime:** Kolom tanggal diubah menjadi format datetime dan dijadikan indeks untuk mempermudah analisis deret waktu.
-3. **Normalisasi Data:** Harga emas dinormalisasi menggunakan Min-Max Scaling untuk meningkatkan kinerja model LSTM.
-4. **Pembagian Data Latih dan Uji:** Data dibagi menjadi dua bagian, yaitu data latih (80%) dan data uji (20%).
+
+1. **Memuat Data dari CSV**  
+   Data harga emas dimuat dari file hargaemas.csv yang telah diunduh dari API Pluang.
+
+2. **Konversi Kolom Tanggal ke Datetime**  
+   Kolom `tgl` diubah ke format datetime agar dapat diurutkan dan diproses sebagai data deret waktu.
+
+3. **Pengurutan Data Berdasarkan Tanggal**  
+   Data diurutkan berdasarkan kolom `tgl` dari tanggal terlama ke terbaru untuk memastikan urutan kronologis yang benar.
+
+4. **Penanganan Data Duplikat**  
+   Data duplikat berdasarkan kolom `tgl` dihapus, hanya menyisakan data terakhir untuk setiap tanggal agar tidak terjadi bias pada analisis.
+
+5. **Penanganan Missing Value**  
+   Nilai yang hilang pada data numerik diimputasi menggunakan interpolasi linier agar deret waktu tetap kontinu.
+
+6. **Menjadikan Kolom Tanggal sebagai Index**  
+   Kolom `tgl` dijadikan index pada dataframe untuk memudahkan analisis dan visualisasi deret waktu.
+
+7. **Feature Engineering**  
+   - **Moving Average 30 Hari (`ma30`)**: Menambahkan fitur rata-rata bergerak 30 hari pada harga jual emas untuk menangkap tren jangka menengah.
+   - **Rolling Standard Deviation 30 Hari (`std30`)**: Menambahkan fitur standar deviasi bergerak 30 hari untuk menangkap volatilitas harga.
+
+8. **Visualisasi Data Harga Jual Emas**  
+   Data harga jual emas divisualisasikan untuk melihat tren dan pola historis.
+
+9. **Pembuatan Sekuens Data (Windowing) untuk LSTM**  
+   Data diubah menjadi bentuk sekuens (window) sepanjang 30 hari untuk setiap sampel input LSTM, dengan target prediksi adalah harga `sell` pada hari ke-31.
+
+10. **Normalisasi Data Multivariate**  
+   Data pada fitur `sell`, `ma30`, dan `std30` dinormalisasi ke rentang 0-1 menggunakan `MinMaxScaler`. Normalisasi ini penting agar model LSTM dapat belajar dengan lebih stabil dan cepat, karena LSTM sensitif terhadap skala data input.
+
+11. **Pembuatan Sekuens Data (Windowing) untuk LSTM**  
+   Data diubah menjadi bentuk sekuens (window) sepanjang 30 hari. Setiap sampel input LSTM terdiri dari 30 hari data historis, dan target prediksi adalah harga `sell` pada hari ke-31. Proses ini menghasilkan array `X` (fitur berurutan) dan `y` (target harga jual) yang siap digunakan untuk training model.
+
+12. Train-Test Split
+Data yang sudah dalam bentuk sekuens kemudian dibagi menjadi dua bagian:
+- **Data Train (80%)**: Digunakan untuk melatih model LSTM agar dapat mempelajari pola historis harga emas.
+- **Data Test (20%)**: Digunakan untuk menguji performa model pada data yang belum pernah dilihat sebelumnya, sehingga dapat mengevaluasi kemampuan generalisasi model.
+
+---
 
 ### Alasan Mengapa Data Preparation Diperlukan
-Langkah-langkah ini dilakukan untuk memastikan data dalam kondisi yang bersih dan terstruktur dengan baik. Normalisasi sangat penting untuk model LSTM karena model ini sensitif terhadap skala data.
+
+Langkah-langkah ini dilakukan untuk memastikan data dalam kondisi bersih, terstruktur, dan siap digunakan oleh model LSTM.  
+- Pengurutan dan penghapusan duplikat penting untuk menjaga urutan waktu dan keunikan data.
+- Interpolasi menjaga kontinuitas data deret waktu.
+- Feature engineering membantu model menangkap tren dan volatilitas.
+- Windowing sangat penting agar data sesuai dengan format input yang dibutuhkan LSTM.
+- MEmbuat sekuens data dan membagi data train dan data test
+---
 
 ## 5. Modeling
 
-### Model LSTM Multivariate
-- **Arsitektur LSTM:** Model ini terdiri dari beberapa lapisan LSTM yang diikuti oleh lapisan dens untuk menghasilkan prediksi. LSTM mampu mempelajari ketergantungan temporal dalam data harga emas.
-- **Hyperparameter:** Kami menguji berbagai kombinasi hyperparameter seperti jumlah unit LSTM dan tingkat dropout untuk menemukan konfigurasi yang optimal.
+Berikut adalah **dokumentasi markdown** yang memenuhi kriteria Model Development sesuai dengan kode dan saran penilaian. Silakan tambahkan ke laporanmu:
 
-### Proses dan Parameter yang Digunakan
-1. **Fitur Input:** Data historis harga emas digunakan sebagai input utama untuk model.
-2. **Lapisan Tersembunyi:** Model terdiri dari beberapa lapisan LSTM dengan unit berkisar antara 50 hingga 100.
-3. **Lapisan Output:** Lapisan output terdiri dari satu neuron yang memprediksi harga emas pada titik waktu berikutnya.
+---
 
-### Peningkatan Model
-Untuk meningkatkan kinerja model, dilakukan tuning hyperparameter dengan menguji berbagai konfigurasi lapisan dan unit. Pengujian silang dilakukan untuk mencegah overfitting dan meningkatkan kemampuan generalisasi model.
+## 5. Modeling
+
+### Penjelasan Cara Kerja LSTM
+
+Long Short-Term Memory (LSTM) adalah jenis Recurrent Neural Network (RNN) yang dirancang untuk mengatasi masalah *vanishing gradient* pada RNN standar, sehingga mampu mempelajari dependensi jangka panjang dalam data deret waktu.
+
+**Mekanisme Internal LSTM:**
+- **Cell State:** Merupakan memori utama yang membawa informasi sepanjang urutan data. Cell state memungkinkan LSTM untuk mempertahankan informasi penting dari waktu ke waktu.
+- **Gates pada LSTM:**
+  - **Forget Gate:** Menentukan informasi apa yang harus dibuang dari cell state.
+  - **Input Gate:** Mengatur informasi baru apa yang akan ditambahkan ke cell state.
+  - **Output Gate:** Mengontrol informasi apa yang akan dikeluarkan dari cell state sebagai output pada waktu tertentu.
+- Dengan mekanisme gates ini, LSTM dapat secara selektif mengingat atau melupakan informasi, sehingga sangat efektif untuk mempelajari pola jangka panjang dan menangani data time series seperti harga emas.
+
+### Arsitektur dan Parameter Model
+
+Model LSTM Multivariate yang digunakan memiliki arsitektur dan parameter sebagai berikut:
+
+- **Layer 1:** LSTM dengan 128 unit, `return_sequences=True` (mengembalikan seluruh urutan untuk layer berikutnya).
+- **Dropout:** Dropout rate sebesar 0.2 untuk mencegah overfitting.
+- **Layer 2:** LSTM dengan 64 unit.
+- **Output Layer:** Dense dengan 1 unit (untuk prediksi harga emas).
+- **Optimizer:** Adam
+- **Loss Function:** Mean Squared Error (`mean_squared_error`)
+- **Epochs:** 100
+- **Batch Size:** 32
+- **Validation Data:** Menggunakan 20% data terakhir sebagai data validasi.
+
+```python
+model = Sequential()
+model.add(LSTM(128, return_sequences=True, input_shape=(window_size, X.shape[2])))
+model.add(Dropout(0.2))
+model.add(LSTM(64))
+model.add(Dense(1))
+model.compile(optimizer='adam', loss='mean_squared_error')
+history = model.fit(
+    X_train, y_train,
+    epochs=100,
+    batch_size=32,
+    validation_data=(X_test, y_test),
+    verbose=1
+)
+model.save('model_lstm_multivariate_emas.h5')
+```
+
+### Penjelasan Proses Training
+
+- Model dilatih menggunakan data train selama 100 epoch dengan batch size 32.
+- Validasi dilakukan pada data test untuk memantau performa model dan mencegah overfitting.
+- Dropout digunakan untuk mengurangi risiko overfitting dengan secara acak menonaktifkan sebagian neuron selama training.
+
+### Kesesuaian Parameter
+
+Seluruh parameter yang digunakan pada model di atas **sesuai dengan implementasi pada notebook**, yaitu:
+- LSTM layer pertama: 128 unit
+- LSTM layer kedua: 64 unit
+- Dropout: 0.2
+- Optimizer: Adam
+- Loss: Mean Squared Error
+- Epochs: 100
+- Batch size: 32
+
+---
+
 
 ## 6. Evaluation
 
